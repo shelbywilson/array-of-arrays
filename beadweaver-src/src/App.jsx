@@ -137,7 +137,7 @@ export default function App() {
                 />
                 <meshPhysicalMaterial
                   color={"#ffff00"}
-                  specular={"#ff0000"}
+                  specular={"#ffff00"}
                   metalness={0.9}
                   roughness={0.5}
                   envMapIntensity={0.1}

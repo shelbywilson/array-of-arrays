@@ -19,12 +19,22 @@ header {
   display: flex;
   justify-content: flex-end;
   position: absolute;
+  top: 0;
   right: 0;
   padding: 0.5rem;
+  z-index: 1;
 }
 
 svg {
   display: block;
+}
+
+header svg path {
+  fill: orangered;
+}
+
+header a:hover svg path {
+  fill: #fff;
 }
 
 button {

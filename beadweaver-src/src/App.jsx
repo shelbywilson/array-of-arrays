@@ -15,7 +15,7 @@ const loopMultiplier = 1.67;
 
 export default function App() {
   const [dimension, setDimension] = useState([3, 3]);
-  const [beadSizes, setBeadSizes] = useState([6]);
+  const [beadSizes, setBeadSizes] = useState([5]);
   const [keyPressed, setKeyPressed] = useState(null);
 
   const handleKeyDown = (event) => {
@@ -23,8 +23,8 @@ export default function App() {
   };
 
   const reset = () => {
-    setDimension([5, 5]);
-    setBeadSizes([6])
+    setDimension([3, 3]);
+    setBeadSizes([5])
   };
 
   const getGrid = () => {
@@ -145,14 +145,13 @@ export default function App() {
                       color={color[cell - 1]}
                       transmissionSampler
                       // backside
-                      samples={3}
+                      samples={4}
                       // resolution={10}
-                      // // backsideResolution={128}
-                      thickness={2.5}
+                      thickness={4}
                       // anisotropy={0.1}
                       transmission={1}
-                      chromaticAberration={0.5}
-                      roughness={0.2}
+                      chromaticAberration={0.2}
+                      roughness={0.1}
                       // opacity={0.2}
                     />
                   </Base>
@@ -175,7 +174,7 @@ export default function App() {
                             <Base geometry={torusGeometry}>
                               <meshStandardMaterial
                                 color={"#ffff00"}
-                                metalness={0.2}
+                                metalness={0}
                                 roughness={1}
                               />
                             </Base>

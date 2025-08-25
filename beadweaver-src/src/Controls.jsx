@@ -6,9 +6,12 @@ export default function Controls({
   count,
   reset,
   randomize,
+  shuffle,
   threadSize,
   beadSizes,
+  beadScale,
   changeBeadSizes,
+  changeBeadScale,
 }) {
   const [collapse, setCollapse] = useState(false);
   return (
@@ -33,12 +36,12 @@ export default function Controls({
             <path
               d="M14 6.5H18.5V11M11 18.5H6.5V14"
               stroke="#121923"
-              stroke-width="1.2"
+              strokeWidth="1.2"
             />
             <path
               d="M18.5 6.5L14 11M6.5 18.5L11 14"
               stroke="#121923"
-              stroke-width="1.2"
+              strokeWidth="1.2"
             />
           </svg>
         ) : (
@@ -68,29 +71,31 @@ export default function Controls({
             style={{
               margin: "0 0 1rem 0",
               display: "grid",
-              gridTemplateColumns: "3rem 2rem 2rem",
+              gridTemplateColumns: "3.5rem 2rem 2rem 2rem",
             }}
           >
             <p>row</p>
             <button onClick={() => changeDimension(-1, true, false)}>-</button>
             <button onClick={() => changeDimension(1, true, false)}>+</button>
+            <p>{dimension[1]}</p>
           </div>
           <div
             className="grid"
             style={{
               margin: "1rem 0 0 0",
-              gridTemplateColumns: "3rem 2rem 2rem",
+              gridTemplateColumns: "3.5rem 2rem 2rem 2rem",
             }}
           >
             <p>col</p>
             <button onClick={() => changeDimension(-1, false, true)}>-</button>
             <button onClick={() => changeDimension(1, false, true)}>+</button>
+            <p>{dimension[0]}</p>
           </div>
           <div
             className="grid"
             style={{
               margin: "1rem 0 0 0",
-              gridTemplateColumns: "3rem 12rem",
+              gridTemplateColumns: "3.5rem 12rem",
             }}
           >
             <p>size</p>
@@ -101,17 +106,38 @@ export default function Controls({
               value={beadSizes[0]}
               onInput={(e) => changeBeadSizes(e.target.value)}
             />
+            <p></p>
+            <input
+              type="range"
+              min={5}
+              max={20}
+              value={beadScale * 20}
+              onInput={(e) => changeBeadScale(e.target.value / 20)}
+            />
           </div>
           <div
             className="grid"
             style={{
               margin: "1rem 0 0 0",
-              gridTemplateColumns: "3rem 6rem 6rem",
+              gridTemplateColumns: "3.5rem 6rem 6rem",
+              rowGap: "1rem",
             }}
           >
             <p>color</p>
             <button onClick={() => randomize("bead")}>beads</button>
             <button onClick={() => randomize("thread")}>thread</button>
+          </div>
+          <div
+            className="grid"
+            style={{
+              margin: "1rem 0 0 0",
+              gridTemplateColumns: "3.5rem 6rem 6rem",
+              rowGap: "1rem",
+            }}
+          >
+            <p></p>
+            <button onClick={() => shuffle("color")}>shuffle</button>
+            {/* <button onClick={() => randomize("size")}>size</button> */}
           </div>
 
           <div>
@@ -140,7 +166,8 @@ export default function Controls({
             >
               <p>
                 <span style={{ textTransform: "none" }}>
-                  {count} x {beadSizes[0]} mm
+                  {count} x {parseFloat((beadSizes[0] * beadScale).toFixed(1))}{" "}
+                  mm
                 </span>{" "}
                 beads
               </p>

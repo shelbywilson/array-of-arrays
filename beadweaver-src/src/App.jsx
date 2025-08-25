@@ -11,10 +11,10 @@ import Controls from "./Controls";
 import Diagram from "./Diagram";
 import { Stats } from "@react-three/drei";
 
-const loopMultiplier = 1.67;
+const loopMultiplier = 1.55;
 const color = [
   "white",
-  "aqua",
+  // "aqua",
   "blue",
   "fuchsia",
   "green",
@@ -26,34 +26,41 @@ const color = [
   "red",
   "teal",
   "yellow",
-  "plum",
+  // "plum",
   "violet",
   "crimson",
   "tomato",
-  "cornflowerblue",
-  "#494949",
-  "saddlebrown"
+  // "cornflowerblue",
+  // "#494949",
+  "saddlebrown",
+  "goldenrod",
+  "#d3eaff",
+  "turquoise",
 ];
 
 export default function App() {
   const [dimension, setDimension] = useState([3, 3]);
   const [beadSizes, setBeadSizes] = useState([5]);
+  const [beadScale, setBeadScale] = useState(1);
   const [keyPressed, setKeyPressed] = useState(null);
   const [threadColor, setThreadColor] = useState("tomato");
   const [uniformBeadColor, setUniformBeadColor] = useState(1);
+  const [shuffledColor, setShuffledColor] = useState(false);
+  const [grid, setGrid] = useState([[]]);
 
   const handleKeyDown = (event) => {
     setKeyPressed(event.key);
   };
 
   const reset = () => {
+    setShuffledColor(false);
     setUniformBeadColor(1);
     setDimension([3, 3]);
     setBeadSizes([5]);
   };
 
-  const getGrid = (randomizeColor = false) => {
-    let grid = [[]];
+  const getGrid = () => {
+    let newGrid = [[]];
     let i = 0;
     let j = 0;
     while (i < dimension[0] * 2 + 1) {
@@ -65,7 +72,9 @@ export default function App() {
         if (i % 2 === 0) {
           if (j % 2 === 1) {
             arr.push(
-              randomizeColor ? Math.floor(Math.random() * color.length) + 1 : uniformBeadColor
+              shuffledColor
+                ? Math.floor(Math.random() * color.length) + 1
+                : uniformBeadColor
             );
           } else {
             arr.push(0);
@@ -73,24 +82,24 @@ export default function App() {
         } else {
           if (j % 2 === 0) {
             arr.push(
-              randomizeColor ? Math.floor(Math.random() * color.length) + 1 : uniformBeadColor
+              shuffledColor
+                ? Math.floor(Math.random() * color.length) + 1
+                : uniformBeadColor
             );
           } else {
             arr.push(0);
           }
         }
       }
-      grid.push(arr);
+      newGrid.push(arr);
     }
 
-    return grid;
+    return newGrid;
   };
-
-  const [grid, setGrid] = useState(getGrid());
 
   useEffect(() => {
     setGrid(getGrid());
-  }, [dimension, uniformBeadColor]);
+  }, [dimension, uniformBeadColor, shuffledColor]);
 
   let allBeads = [];
 
@@ -140,15 +149,19 @@ export default function App() {
         count += 1;
 
         try {
-          const sphereGeom = new THREE.SphereGeometry(beadSizes[0], 20, 20);
+          const sphereGeom = new THREE.SphereGeometry(
+            beadSizes[0] * beadScale,
+            20,
+            20
+          );
           const cylinderGeom = new THREE.CylinderGeometry(
-            beadSizes[0] * 0.2,
-            beadSizes[0] * 0.2,
+            beadSizes[0] * (beadScale * 0.3),
+            beadSizes[0] * (beadScale * 0.3),
             beadSizes[0] * 2,
             16
           );
           const torusGeometry = new THREE.TorusGeometry(
-            beadSizes[0] * loopMultiplier,
+            beadSizes[0] * loopMultiplier + loopMultiplier * beadScale,
             0.4,
             12,
             48
@@ -308,13 +321,22 @@ export default function App() {
           dimension[0] * dimension[1] * beadSizes[0] * loopMultiplier * Math.PI
         }
         beadSizes={beadSizes}
+        beadScale={beadScale}
         changeBeadSizes={(size) => setBeadSizes([size, size])}
+        changeBeadScale={(scale) => setBeadScale(scale)}
         randomize={(type) => {
           if (type == "bead") {
-            setUniformBeadColor(Math.floor(Math.random() * color.length) + 1)
-            setGrid(getGrid());
+            setShuffledColor(false);
+            setUniformBeadColor(Math.floor(Math.random() * color.length) + 1);
           } else {
             setThreadColor(color[Math.floor(Math.random() * color.length)]);
+          }
+        }}
+        shuffle={(type) => {
+          console.log(type);
+          if (type == "color") {
+            setShuffledColor(true);
+            setGrid(getGrid());
           }
         }}
       />

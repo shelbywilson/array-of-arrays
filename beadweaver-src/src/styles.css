@@ -7,6 +7,63 @@ body,
   font-family: sans-serif;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 p {
   margin: 0;
+}
+
+header {
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  right: 0;
+  padding: 0.5rem;
+}
+
+svg {
+  display: block;
+}
+
+button {
+  background: #fff;
+  border: 1px solid #fff;
+  padding: 0.25rem 0.5rem;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+button:hover {
+  background: palegoldenrod;
+}
+
+.dialog {
+  position: fixed;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  border: 1px solid saddlebrown;
+  backdrop-filter: blur(10px);
+}
+
+.grid {
+  display: grid;
+  column-gap: 0.5rem;
+  align-items: center;
+}
+
+.controls {
+  padding: 1rem;
+  top: 1rem;
+  left: 1rem;
+  min-width: 2.5rem;
+  min-height: 2.25rem;
+}
+
+@media screen and (max-width: 800px) {
+  .controls {
+    top: 3rem;
+  }
 }

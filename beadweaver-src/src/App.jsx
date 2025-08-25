@@ -9,25 +9,50 @@ import {
 import { Subtraction, Addition, Base, Geometry } from "@react-three/csg";
 import Controls from "./Controls";
 import Diagram from "./Diagram";
-import { Stats } from '@react-three/drei'
+import { Stats } from "@react-three/drei";
 
 const loopMultiplier = 1.67;
+const color = [
+  "white",
+  "aqua",
+  "blue",
+  "fuchsia",
+  "green",
+  "lime",
+  "maroon",
+  "olive",
+  "orange",
+  "purple",
+  "red",
+  "teal",
+  "yellow",
+  "plum",
+  "violet",
+  "crimson",
+  "tomato",
+  "cornflowerblue",
+  "#494949",
+  "saddlebrown"
+];
 
 export default function App() {
   const [dimension, setDimension] = useState([3, 3]);
   const [beadSizes, setBeadSizes] = useState([5]);
   const [keyPressed, setKeyPressed] = useState(null);
+  const [threadColor, setThreadColor] = useState("tomato");
+  const [uniformBeadColor, setUniformBeadColor] = useState(1);
 
   const handleKeyDown = (event) => {
     setKeyPressed(event.key);
   };
 
   const reset = () => {
+    setUniformBeadColor(1);
     setDimension([3, 3]);
-    setBeadSizes([5])
+    setBeadSizes([5]);
   };
 
-  const getGrid = () => {
+  const getGrid = (randomizeColor = false) => {
     let grid = [[]];
     let i = 0;
     let j = 0;
@@ -39,13 +64,17 @@ export default function App() {
         j += 1;
         if (i % 2 === 0) {
           if (j % 2 === 1) {
-            arr.push(1);
+            arr.push(
+              randomizeColor ? Math.floor(Math.random() * color.length) + 1 : uniformBeadColor
+            );
           } else {
             arr.push(0);
           }
         } else {
           if (j % 2 === 0) {
-            arr.push(1);
+            arr.push(
+              randomizeColor ? Math.floor(Math.random() * color.length) + 1 : uniformBeadColor
+            );
           } else {
             arr.push(0);
           }
@@ -53,6 +82,7 @@ export default function App() {
       }
       grid.push(arr);
     }
+
     return grid;
   };
 
@@ -60,14 +90,9 @@ export default function App() {
 
   useEffect(() => {
     setGrid(getGrid());
-  }, [dimension]);
+  }, [dimension, uniformBeadColor]);
 
   let allBeads = [];
-  let allLoops = [];
-
-  let i = 0;
-  let j = 0;
-  const color = ["rgb(255, 255, 255)", "#555", "red"];
 
   const removeBead = (i, j) => {
     let newGrid = [...grid];
@@ -160,7 +185,7 @@ export default function App() {
                     rotation={[0, 0, i % 2 === 0 ? -Math.PI / 2 : 0]}
                   >
                     <meshPhysicalMaterial
-                      color="rgb(255, 255, 255)"
+                      color={color[cell - 1]}
                       // side={THREE.DoubleSide}
                       // transparent={true}
                       opacity={0.6}
@@ -173,7 +198,7 @@ export default function App() {
                           <Geometry useGroups>
                             <Base geometry={torusGeometry}>
                               <meshStandardMaterial
-                                color={"#ffff00"}
+                                color={threadColor}
                                 metalness={0}
                                 roughness={1}
                               />
@@ -218,7 +243,7 @@ export default function App() {
               <mesh onClick={() => handleClick(i, j)} receiveShadow castShadow>
                 <sphereGeometry args={[beadSizes[0], 12, 10]} />
                 <meshPhysicalMaterial
-                  color="red" 
+                  color="red"
                   metalness={0.9}
                   roughness={0.5}
                 />
@@ -253,7 +278,7 @@ export default function App() {
   return (
     <Fragment>
       <Canvas
-        camera={{ position: [0, 0, 200], far: 1000, near: 0.001, fov: 50 }}
+        camera={{ position: [0, 0, 80], far: 1000, near: 0.001, fov: 50 }}
         onKeyDown={handleKeyDown}
         tabIndex={0}
       >
@@ -264,7 +289,7 @@ export default function App() {
 
         <group
           position={[
-            (-dimension[0] * 1.5 * beadSizes[0]) - beadSizes[0] * 1.5,
+            -dimension[0] * 1.5 * beadSizes[0] - beadSizes[0] * 1.5,
             -dimension[1] * 1.5 * beadSizes[0],
             0,
           ]}
@@ -279,9 +304,19 @@ export default function App() {
         changeDimension={changeDimension}
         count={count}
         reset={reset}
-        threadSize={dimension[0] * dimension[1] * beadSizes[0] * loopMultiplier * Math.PI}
+        threadSize={
+          dimension[0] * dimension[1] * beadSizes[0] * loopMultiplier * Math.PI
+        }
         beadSizes={beadSizes}
         changeBeadSizes={(size) => setBeadSizes([size, size])}
+        randomize={(type) => {
+          if (type == "bead") {
+            setUniformBeadColor(Math.floor(Math.random() * color.length) + 1)
+            setGrid(getGrid());
+          } else {
+            setThreadColor(color[Math.floor(Math.random() * color.length)]);
+          }
+        }}
       />
 
       <Diagram svgDim={svgDim} grid={grid} color={color} />

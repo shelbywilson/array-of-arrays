@@ -1,34 +1,38 @@
-import { useState } from 'react'
+import { useState } from "react";
 
 export default function Diagram({ svgDim, grid, color }) {
-  const [collapse, setCollapse] = useState(false)
+  const [collapse, setCollapse] = useState(false);
   return (
     <div
       onClick={() => setCollapse((prev) => !prev)}
+      className="dialog"
       style={{
-        position: 'fixed',
         left: 10,
         bottom: 10,
-        height: collapse ? 20 : '',
-        width: collapse ? 20 : '',
-        border: '1px solid yellow',
-        overflow: 'hidden'
-      }}>
+        height: collapse ? 30 : "",
+        width: collapse ? 30 : "",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       {collapse ? (
         <svg height={20} width={20}>
           <rect
             width={14}
             height={14}
             style={{
-              fill: '#fff',
-              stroke: 'black',
-              transform: `translate(${10}px, ${0}px) rotate(45deg)`
-            }}></rect>
+              fill: "#fff",
+              stroke: "black",
+              transform: `translate(${10}px, ${0}px) rotate(45deg)`,
+            }}
+          ></rect>
         </svg>
       ) : (
         <svg height={svgDim[1]} width={svgDim[0]}>
           {grid.map((row, i) => (
-            <g key={i} style={{ transform: `translate(14px, 0)` }}>
+            <g key={i} style={{ transform: `translate(14px, -5px)` }}>
               {row.map((cell, j) => {
                 if (cell > 0) {
                   return (
@@ -38,20 +42,21 @@ export default function Diagram({ svgDim, grid, color }) {
                       height={14}
                       style={{
                         fill: color[cell - 1],
-                        stroke: 'black',
+                        stroke: "black",
                         transform: `translate(${(i - 1) * 10}px, ${
                           svgDim[1] - (j + 2) * 10
-                        }px) rotate(45deg)`
-                      }}></rect>
-                  )
+                        }px) rotate(45deg)`,
+                      }}
+                    ></rect>
+                  );
                 }
 
-                return <g key={`${i}_${j}`}></g>
+                return <g key={`${i}_${j}`}></g>;
               })}
             </g>
           ))}
         </svg>
       )}
     </div>
-  )
+  );
 }

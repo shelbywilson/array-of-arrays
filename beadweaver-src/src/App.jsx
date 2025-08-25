@@ -1,15 +1,21 @@
 import * as THREE from "three";
 import { Fragment, useEffect, useState } from "react";
-import { Canvas, directionalLight } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { BackSide } from "three";
-import { Subtraction } from "@react-three/csg";
-import Diagram from "./Diagram";
+import { Canvas } from "@react-three/fiber";
+import {
+  OrbitControls,
+  MeshTransmissionMaterial,
+  Environment,
+} from "@react-three/drei";
+import { Subtraction, Addition, Base, Geometry } from "@react-three/csg";
 import Controls from "./Controls";
+import Diagram from "./Diagram";
+import { Stats } from '@react-three/drei'
+
+const loopMultiplier = 1.67;
 
 export default function App() {
-  const [dimension, setDimension] = useState([5, 5]);
-  const [beadSizes, setBeadSizes] = useState([4]);
+  const [dimension, setDimension] = useState([3, 3]);
+  const [beadSizes, setBeadSizes] = useState([6]);
   const [keyPressed, setKeyPressed] = useState(null);
 
   const handleKeyDown = (event) => {
@@ -18,10 +24,13 @@ export default function App() {
 
   const reset = () => {
     setDimension([5, 5]);
+    setBeadSizes([6])
   };
 
   const getGrid = () => {
     let grid = [[]];
+    let i = 0;
+    let j = 0;
     while (i < dimension[0] * 2 + 1) {
       i += 1;
       let arr = [];
@@ -44,7 +53,6 @@ export default function App() {
       }
       grid.push(arr);
     }
-
     return grid;
   };
 
@@ -64,7 +72,6 @@ export default function App() {
   const removeBead = (i, j) => {
     let newGrid = [...grid];
     newGrid[i][j] = 0;
-
     setGrid(newGrid);
   };
 
@@ -83,7 +90,7 @@ export default function App() {
     if (keyPressed == "x") {
       removeBead(i, j);
     } else {
-      changeColor(i, j);
+      // changeColor(i, j);
     }
   };
 
@@ -92,62 +99,129 @@ export default function App() {
   grid.forEach((row, i) => {
     row.forEach((cell, j, cells) => {
       let position = [beadSizes[0] * 1.5 * i, beadSizes[0] * 1.5 * j, 0];
-      if (cell) {
-        count += 1;
-        allBeads.push(
-          <group key={`${i}_${j}`} position={position}>
-            <mesh onClick={() => handleClick(i, j)}>
-              <sphereGeometry args={[beadSizes[0], 12, 10]} />
-              <meshPhysicalMaterial
-                key={`${i}_${j}`}
-                color={color[cell - 1]}
-                // shininess={10}
-                specular={"#fff"}
-                emissive={color[1]}
-                metalness={0.9}
-                roughness={0.5}
-                envMapIntensity={0.1}
-                clearcoat={1}
-                transparent={true}
-                opacity={0.9}
-                reflectivity={0.2}
-                // refactionRatio={0.985}
-                ior={0.9}
-                // side={BackSide}
-              />
-            </mesh>
-            <mesh
-              rotation={[0, 0, i % 2 === 0 ? -Math.PI / 2 : 0]}
-              operation="subtract"
-            >
-              <cylinderGeometry args={[0.2, 0.2, beadSizes[0] * 2]} />
-            </mesh>
-          </group>
-        );
-      }
+      let loopPosition = null;
 
       if (j % 2 == 1) {
         if (i % 2 == 1 && i > 1) {
-          position = [beadSizes[0] * 1.5 * (i - 1), beadSizes[0] * 1.5 * j, 0];
-          allLoops.push(
-            <group position={position}>
-              <mesh>
-                <torusGeometry
-                  args={[beadSizes[0] * 1.625, beadSizes[0] * 1.625 * 0.05]}
-                />
+          loopPosition = [
+            beadSizes[0] * 1.5 * (i - 2),
+            beadSizes[0] * 1.5 * (j - 1),
+            0,
+          ];
+        }
+      }
+
+      if (cell) {
+        count += 1;
+
+        try {
+          const sphereGeom = new THREE.SphereGeometry(beadSizes[0], 20, 20);
+          const cylinderGeom = new THREE.CylinderGeometry(
+            beadSizes[0] * 0.2,
+            beadSizes[0] * 0.2,
+            beadSizes[0] * 2,
+            16
+          );
+          const torusGeometry = new THREE.TorusGeometry(
+            beadSizes[0] * loopMultiplier,
+            0.4,
+            12,
+            48
+            // Math.PI / 4
+          );
+          // const loopGeomSegement = new THREE.CylinderGeometry(
+          //   0.4,
+          //   0.4,
+          //   beadSizes[0] * 1.3,
+          //   16
+          // );
+
+          allBeads.push(
+            <group key={`${i}_${j}`} position={position}>
+              <mesh onClick={() => handleClick(i, j)} receiveShadow castShadow>
+                <Geometry useGroups>
+                  <Base geometry={sphereGeom}>
+                    <MeshTransmissionMaterial
+                      color={color[cell - 1]}
+                      transmissionSampler
+                      // backside
+                      samples={3}
+                      // resolution={10}
+                      // // backsideResolution={128}
+                      thickness={2.5}
+                      // anisotropy={0.1}
+                      transmission={1}
+                      chromaticAberration={0.5}
+                      roughness={0.2}
+                      // opacity={0.2}
+                    />
+                  </Base>
+                  <Subtraction
+                    geometry={cylinderGeom}
+                    rotation={[0, 0, i % 2 === 0 ? -Math.PI / 2 : 0]}
+                  >
+                    <meshPhysicalMaterial
+                      color="rgb(255, 255, 255)"
+                      // side={THREE.DoubleSide}
+                      // transparent={true}
+                      opacity={0.6}
+                    />
+                  </Subtraction>
+                  {loopPosition ? (
+                    <group position={[-beadSizes[0] * 1.5, 0, 0]}>
+                      <group>
+                        <Addition>
+                          <Geometry useGroups>
+                            <Base geometry={torusGeometry}>
+                              <meshStandardMaterial
+                                color={"#ffff00"}
+                                metalness={0.2}
+                                roughness={1}
+                              />
+                            </Base>
+
+                            {/* <group rotation={[0, 0, Math.PI / 8 + Math.PI]}>
+                              <Addition geometry={torusGeometry}>
+                                <meshStandardMaterial
+                                  color={"#ffff00"}
+                                  metalness={0.2}
+                                  roughness={1}
+                                />
+                              </Addition>
+                            </group>
+
+                            <Addition
+                              position={[-beadSizes[0] * 1.7 * 0.85, 0, 0]}
+                              geometry={loopGeomSegement}
+                            >
+                              <meshStandardMaterial
+                                color={"#ffff00"}
+                                metalness={0.2}
+                                roughness={1}
+                              />
+                            </Addition> */}
+                          </Geometry>
+                        </Addition>
+                      </group>
+                    </group>
+                  ) : (
+                    <></>
+                  )}
+                </Geometry>
+              </mesh>
+            </group>
+          );
+        } catch (error) {
+          console.error(`Error creating CSG bead at ${i}, ${j}:`, error);
+          // Fallback to regular sphere if CSG fails
+          allBeads.push(
+            <group key={`${i}_${j}`} position={position}>
+              <mesh onClick={() => handleClick(i, j)} receiveShadow castShadow>
+                <sphereGeometry args={[beadSizes[0], 12, 10]} />
                 <meshPhysicalMaterial
-                  color={"#ffff00"}
-                  specular={"#ffff00"}
+                  color="red" 
                   metalness={0.9}
                   roughness={0.5}
-                  envMapIntensity={0.1}
-                  clearcoat={1}
-                  transparent={true}
-                  opacity={0.9}
-                  reflectivity={0.2}
-                  // refactionRatio={0.985}
-                  ior={0.9}
-                  // side={BackSide}
                 />
               </mesh>
             </group>
@@ -162,9 +236,11 @@ export default function App() {
       let newDim = [...prev];
       if (row) {
         newDim[1] += dir;
+        newDim[1] = Math.max(0, newDim[1]);
       }
       if (col) {
         newDim[0] += dir;
+        newDim[0] = Math.max(0, newDim[0]);
       }
       return newDim;
     });
@@ -175,28 +251,26 @@ export default function App() {
     (dimension[1] + 1) * 14 * 1.42 + 10,
   ];
 
-  console.log(dimension, beadSizes[0]);
-
   return (
     <Fragment>
       <Canvas
-        camera={{ position: [0, 0, 100], far: 50000, near: 0.1 }}
+        camera={{ position: [0, 0, 200], far: 1000, near: 0.001, fov: 50 }}
         onKeyDown={handleKeyDown}
         tabIndex={0}
       >
-        {/* <color attach="background" args={["transparent"]} /> */}
-        <ambientLight intensity={5} />
-        <directionalLight position={[100, 100, 104]} />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[10, 10, 104]} intensity={0.8} />
+
         <OrbitControls />
 
         <group
           position={[
-            -dimension[0] * 1.5 * beadSizes[0],
+            (-dimension[0] * 1.5 * beadSizes[0]) - beadSizes[0] * 1.5,
             -dimension[1] * 1.5 * beadSizes[0],
             0,
           ]}
         >
-          {allLoops}
+          {/* {allLoops} */}
           {allBeads}
         </group>
       </Canvas>
@@ -206,10 +280,13 @@ export default function App() {
         changeDimension={changeDimension}
         count={count}
         reset={reset}
+        threadSize={dimension[0] * dimension[1] * beadSizes[0] * loopMultiplier * Math.PI}
+        beadSizes={beadSizes}
+        changeBeadSizes={(size) => setBeadSizes([size, size])}
       />
 
-      {/* <input type='range' value={beadSizes[0]} onChange={(e) => setBeadSizes(prev => [e.target.value])} /> */}
       <Diagram svgDim={svgDim} grid={grid} color={color} />
+      {/* <Stats /> */}
     </Fragment>
   );
 }

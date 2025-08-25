@@ -261,7 +261,7 @@ export default function App() {
         <ambientLight intensity={0.4} />
         <directionalLight position={[10, 10, 104]} intensity={0.8} />
 
-        <OrbitControls />
+        <OrbitControls rotateSpeed={2} />
 
         <group
           position={[

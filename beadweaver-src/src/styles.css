@@ -55,7 +55,7 @@ button:hover {
   text-transform: uppercase;
   font-size: 0.75rem;
   border: 1px solid saddlebrown;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .grid {

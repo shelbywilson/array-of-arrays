@@ -161,7 +161,7 @@ export default function App() {
             16
           );
           const torusGeometry = new THREE.TorusGeometry(
-            beadSizes[0] * loopMultiplier + loopMultiplier * beadScale,
+            beadSizes[0] * loopMultiplier + (loopMultiplier * beadScale / 2),
             0.4,
             12,
             48
@@ -185,10 +185,10 @@ export default function App() {
                       // backside
                       samples={4}
                       // resolution={10}
-                      thickness={4}
-                      // anisotropy={0.1}
+                      thickness={3}
+                      anisotropy={0.1}
                       transmission={1}
-                      chromaticAberration={0.2}
+                      chromaticAberration={0.5}
                       roughness={0.1}
                       // opacity={0.2}
                     />

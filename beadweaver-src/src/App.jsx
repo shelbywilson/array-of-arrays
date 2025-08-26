@@ -1,10 +1,13 @@
 import * as THREE from "three";
-import React, { Fragment, useEffect, useState, useMemo, useCallback } from "react";
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { Canvas } from "@react-three/fiber";
-import {
-  OrbitControls,
-  MeshTransmissionMaterial,
-} from "@react-three/drei";
+import { OrbitControls, MeshTransmissionMaterial } from "@react-three/drei";
 import { Subtraction, Addition, Base, Geometry } from "@react-three/csg";
 import Controls from "./Controls";
 import Diagram from "./Diagram";
@@ -33,74 +36,86 @@ const color = [
   "turquoise",
 ];
 
-const Bead = React.memo(({ position, cell, beadSizes, beadScale, threadColor, onBeadClick, i, j, hasLoop }) => {
-  const geometries = useMemo(() => ({
-    sphere: new THREE.SphereGeometry(beadSizes[0] * beadScale, 16, 16), 
-    cylinder: new THREE.CylinderGeometry(
-      beadSizes[0] * (beadScale * 0.3),
-      beadSizes[0] * (beadScale * 0.3),
-      beadSizes[0] * 2,
-      18 
-    ),
-    torus: new THREE.TorusGeometry(
-      beadSizes[0] * loopMultiplier + (loopMultiplier * beadScale / 2),
-      0.4,
-      8, 
-      32
-    )
-  }), [beadSizes, beadScale]);
+const Bead = React.memo(
+  ({
+    position,
+    cell,
+    beadSizes,
+    beadScale,
+    threadColor,
+    onBeadClick,
+    i,
+    j,
+    hasLoop,
+  }) => {
+    const geometries = useMemo(
+      () => ({
+        sphere: new THREE.SphereGeometry(beadSizes[0] * beadScale, 16, 16),
+        cylinder: new THREE.CylinderGeometry(
+          beadSizes[0] * (beadScale * 0.3),
+          beadSizes[0] * (beadScale * 0.3),
+          beadSizes[0] * 2,
+          18
+        ),
+        torus: new THREE.TorusGeometry(
+          beadSizes[0] * loopMultiplier + (loopMultiplier * beadScale) / 2,
+          0.4,
+          8,
+          32
+        ),
+      }),
+      [beadSizes, beadScale]
+    );
 
-  const handleClick = useCallback(() => {
-    onBeadClick(i, j);
-  }, [onBeadClick, i, j]);
+    const handleClick = useCallback(() => {
+      onBeadClick(i, j);
+    }, [onBeadClick, i, j]);
 
-  if (!cell) return null;
+    if (!cell) return null;
 
-  return (
-    <group position={position}>
-      <mesh onClick={handleClick} receiveShadow castShadow>
-        <Geometry useGroups>
-          <Base geometry={geometries.sphere}>
-            <MeshTransmissionMaterial
-              color={color[cell - 1]}
-              transmissionSampler
-              samples={3} 
-              thickness={3}
-              anisotropy={0.1}
-              transmission={1}
-              chromaticAberration={0.5}
-              roughness={0.1}
-            />
-          </Base>
-          <Subtraction
-            geometry={geometries.cylinder}
-            rotation={[0, 0, i % 2 === 0 ? -Math.PI / 2 : 0]}
-          >
-            <meshPhysicalMaterial
-              color={color[cell - 1]}
-              opacity={0.6}
-            />
-          </Subtraction>
-          {hasLoop && (
-            <group position={[-beadSizes[0] * 1.5, 0, 0]}>
-              <Addition>
-                <Geometry useGroups>
-                  <Base geometry={geometries.torus}>
-                    <meshStandardMaterial
-                      color={threadColor}
-                      metalness={0}
-                      roughness={1}
-                    />
-                  </Base>
-                </Geometry>
-              </Addition>
-            </group>
-          )}
-        </Geometry>
-      </mesh>
-    </group>
-  );
-});
+    return (
+      <group position={position}>
+        <mesh onClick={handleClick} receiveShadow castShadow>
+          <Geometry useGroups>
+            <Base geometry={geometries.sphere}>
+              <MeshTransmissionMaterial
+                color={color[cell - 1]}
+                transmissionSampler
+                samples={3}
+                thickness={3}
+                anisotropy={0.1}
+                transmission={1}
+                chromaticAberration={0.5}
+                roughness={0.1}
+              />
+            </Base>
+            <Subtraction
+              geometry={geometries.cylinder}
+              rotation={[0, 0, i % 2 === 0 ? -Math.PI / 2 : 0]}
+            >
+              <meshPhysicalMaterial color={color[cell - 1]} opacity={0.6} />
+            </Subtraction>
+            {hasLoop && (
+              <group position={[-beadSizes[0] * 1.5, 0, 0]}>
+                <Addition>
+                  <Geometry useGroups>
+                    <Base geometry={geometries.torus}>
+                      <meshStandardMaterial
+                        color={threadColor}
+                        metalness={0}
+                        roughness={1}
+                      />
+                    </Base>
+                  </Geometry>
+                </Addition>
+              </group>
+            )}
+          </Geometry>
+        </mesh>
+      </group>
+    );
+  }
+);
 
 export default function App() {
   const [dimension, setDimension] = useState([3, 3]);
@@ -167,7 +182,7 @@ export default function App() {
   }, [getGrid]);
 
   const removeBead = useCallback((i, j) => {
-    setGrid(prevGrid => {
+    setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
       newGrid[i][j] = 0;
       return newGrid;
@@ -175,7 +190,7 @@ export default function App() {
   }, []);
 
   const changeColor = useCallback((i, j) => {
-    setGrid(prevGrid => {
+    setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
       newGrid[i][j] += 1;
       if (newGrid[i][j] > color.length) {
@@ -185,11 +200,14 @@ export default function App() {
     });
   }, []);
 
-  const handleBeadClick = useCallback((i, j) => {
-    if (keyPressed === "x") {
-      removeBead(i, j);
-    }
-  }, [keyPressed, removeBead]);
+  const handleBeadClick = useCallback(
+    (i, j) => {
+      if (keyPressed === "x") {
+        removeBead(i, j);
+      }
+    },
+    [keyPressed, removeBead]
+  );
 
   const allBeads = useMemo(() => {
     const beads = [];
@@ -197,7 +215,7 @@ export default function App() {
     grid.forEach((row, i) => {
       row.forEach((cell, j) => {
         if (!cell) return;
-        
+
         const position = [beadSizes[0] * 1.5 * i, beadSizes[0] * 1.5 * j, 0];
         const hasLoop = j % 2 === 1 && i % 2 === 1 && i > 1;
 
@@ -236,10 +254,13 @@ export default function App() {
     });
   }, []);
 
-  const svgDim = useMemo(() => [
-    (dimension[0] + 1) * 14 * 1.42 + 10,
-    (dimension[1] + 1) * 14 * 1.42 + 10,
-  ], [dimension]);
+  const svgDim = useMemo(
+    () => [
+      (dimension[0] + 1) * 14 * 1.42 + 10,
+      (dimension[1] + 1) * 14 * 1.42 + 10,
+    ],
+    [dimension]
+  );
 
   const randomize = useCallback((type) => {
     if (type === "bead") {
@@ -250,12 +271,15 @@ export default function App() {
     }
   }, []);
 
-  const shuffle = useCallback((type) => {
-    if (type === "color") {
-      setShuffledColor(true);
-      setGrid(getGrid());
-    }
-  }, [getGrid]);
+  const shuffle = useCallback(
+    (type) => {
+      if (type === "color") {
+        setShuffledColor(true);
+        setGrid(getGrid());
+      }
+    },
+    [getGrid]
+  );
 
   return (
     <Fragment>
@@ -265,11 +289,12 @@ export default function App() {
         tabIndex={0}
         performance={{ min: 0.5 }}
         dpr={[1, 2]} // Limit device pixel ratio
-        frameloop="demand" 
+        frameloop="demand"
       >
+        {/* <color attach="background" args={["aliceblue"]} /> */}
         <ambientLight intensity={0.4} />
         <directionalLight position={[10, 10, 104]} intensity={0.8} />
-        <OrbitControls 
+        <OrbitControls
           rotateSpeed={2}
           enableDamping={true}
           dampingFactor={0.05}

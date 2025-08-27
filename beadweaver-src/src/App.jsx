@@ -254,14 +254,6 @@ export default function App() {
     });
   }, []);
 
-  const svgDim = useMemo(
-    () => [
-      (dimension[0] + 1) * 14 * 1.42 + 10,
-      (dimension[1] + 1) * 14 * 1.42 + 10,
-    ],
-    [dimension]
-  );
-
   const randomize = useCallback((type) => {
     if (type === "bead") {
       setShuffledColor(false);
@@ -324,7 +316,7 @@ export default function App() {
         randomize={randomize}
         shuffle={shuffle}
       />
-      <Diagram svgDim={svgDim} grid={grid} color={color} />
+      <Diagram grid={grid} color={color} />
       {/* <Stats /> */}
     </Fragment>
   );

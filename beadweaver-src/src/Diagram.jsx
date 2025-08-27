@@ -1,7 +1,12 @@
 import { useState } from "react";
 
-export default function Diagram({ svgDim, grid, color }) {
+export default function Diagram({ grid, color }) {
   const [collapse, setCollapse] = useState(false);
+  const svgDim = [
+    (grid.length) * 7 * 1.42 + 10,
+    (grid[grid.length - 1].length + 1) * 7 * 1.42 + 10,
+  ];
+
   return (
     <div
       onClick={() => setCollapse((prev) => !prev)}
@@ -31,30 +36,32 @@ export default function Diagram({ svgDim, grid, color }) {
         </svg>
       ) : (
         <svg height={svgDim[1]} width={svgDim[0]}>
-          {grid.map((row, i) => (
-            <g key={i} style={{ transform: `translate(14px, -5px)` }}>
-              {row.map((cell, j) => {
-                if (cell > 0) {
-                  return (
-                    <rect
-                      key={`${i}_${j}`}
-                      width={14}
-                      height={14}
-                      style={{
-                        fill: color[cell - 1],
-                        stroke: "black",
-                        transform: `translate(${(i - 1) * 10}px, ${
-                          svgDim[1] - (j + 2) * 10
-                        }px) rotate(45deg)`,
-                      }}
-                    ></rect>
-                  );
-                }
+          <g>
+            {grid.map((row, i) => (
+              <g key={i} style={{ transform: `translate(14px, -5px)` }}>
+                {row.map((cell, j) => {
+                  if (cell > 0) {
+                    return (
+                      <rect
+                        key={`${i}_${j}`}
+                        width={14}
+                        height={14}
+                        style={{
+                          fill: color[Math.ceil(cell) - 1],
+                          stroke: "black",
+                          transform: `translate(${(i - 1) * 10}px, ${
+                            svgDim[1] - (j + 2) * 10
+                          }px) rotate(45deg)`,
+                        }}
+                      ></rect>
+                    );
+                  }
 
-                return <g key={`${i}_${j}`}></g>;
-              })}
-            </g>
-          ))}
+                  return <g key={`${i}_${j}`}></g>;
+                })}
+              </g>
+            ))}
+          </g>
         </svg>
       )}
     </div>

@@ -288,8 +288,7 @@ export default function App() {
         <directionalLight position={[10, 10, 104]} intensity={0.8} />
         <OrbitControls
           rotateSpeed={2}
-          enableDamping={true}
-          dampingFactor={0.05}
+          enableDamping={false}
         />
         <group
           position={[
